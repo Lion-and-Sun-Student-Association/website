@@ -1,0 +1,484 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* Make Tailwind's `dark:` variant follow the manual data-theme toggle
+   instead of the OS preference. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --sunset-gold: #fcd34d;
+  --uoft-primary: #1E3765;
+  --uoft-sec-1: #007FA3;
+  --uoft-sec-2: #6FC7EA;
+  --iran-green: #00a42f;
+  --iran-red: #e70719;
+  --iran-yellow: #e0ad37;
+
+  /* Navbar / UI accents */
+  --accent: var(--iran-yellow);
+  --accent-secondary: var(--uoft-sec-1);
+  --muted: #5a5a5a;
+
+  --font-heading: var(--font-crimson), Georgia, serif;
+  --font-body: var(--font-lato), system-ui, sans-serif;
+  --font-persian: "Vazirmatn", Tahoma, sans-serif;
+  --font-caslon: var(--font-libre-caslon), "Libre Caslon Text", serif;
+  --font-garamond: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-iran-yellow: var(--iran-yellow);
+  --color-accent: var(--iran-yellow);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-roboto-slab: var(--font-roboto-slab);
+  --font-caveat: var(--font-caveat);
+}
+
+/* Theme is controlled manually via the data-theme attribute (set by
+   ThemeProvider), not the OS preference, so the toggle takes effect. */
+[data-theme="dark"] {
+  --background: #000b1f;
+  --foreground: #ededed;
+  --muted: #9ca3af;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+p {
+  font-family: var(--font-roboto-slab) !important ;
+}
+
+a {
+  transition: color 0.2s ease;
+}
+
+@layer base {
+  a:hover {
+    color: var(--sunset-gold);
+  }
+}
+
+/* ── Animated name background ── */
+
+@keyframes name-float {
+  0%   { opacity: 0; }
+  25%  { opacity: var(--name-peak, 0.45); }
+  75%  { opacity: var(--name-peak, 0.45); }
+  100% { opacity: 0; }
+}
+
+/* A single floating name. Position, size and duration are set inline
+   per token; everything static lives here.
+
+   The names are the neutral foreground colour (white in dark mode, black in
+   light mode) rather than yellow — yellow is reserved for interactive accents
+   so the memorial names read as ambient background texture, not decoration. */
+.name-token {
+  position: absolute;
+  white-space: nowrap;
+  color: var(--foreground);
+  /* Light mode: black-on-light has high contrast, so keep names faint. */
+  --name-peak: 0.28;
+  opacity: 0;
+  font-family: 'Times New Roman', Times, serif;
+  will-change: opacity, transform;
+  animation-name: name-float;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+/* Dark mode: white-on-dark is softer, so names can carry a touch more presence. */
+[data-theme="dark"] .name-token {
+  --name-peak: 0.45;
+}
+
+/* ── Animated gradient backdrop (texture for the glass to blur) ── */
+
+.gradient-backdrop {
+  /* The lion-and-sun tricolour, evoked as soft horizontal stripes:
+     green (top) · light centre with a golden sun · red (bottom). */
+  background-image:
+    /* the three flag bands */
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--iran-green) 75%, transparent) 0%,
+      transparent 45%,
+      transparent 55%,
+      color-mix(in srgb, var(--iran-red) 75%, transparent) 100%
+    );
+  /* Slightly taller than the viewport so the bands can sway vertically. */
+  background-size: 100% 116%, 100% 116%;
+  background-repeat: no-repeat;
+  background-position: 50% 0%, 50% 0%;
+  /* Slow, dignified breathing — like a flag at rest, not a sliding banner. */
+  animation: flag-sway 30s ease-in-out infinite alternate;
+}
+
+/* Light mode: the bands sit over white instead of deep navy, so the
+   full-strength colours read harsh (near-opaque red/green). Soften them to a
+   pale tricolour wash that still blurs nicely behind the glass. */
+[data-theme="light"] .gradient-backdrop {
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--iran-green) 38%, transparent) 0%,
+      transparent 42%,
+      transparent 58%,
+      color-mix(in srgb, var(--iran-red) 32%, transparent) 100%
+    );
+}
+
+@keyframes flag-sway {
+  from { background-position: 50% 0%,   50% 0%; }
+  to   { background-position: 50% 100%, 50% 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradient-backdrop { animation: none; }
+}
+
+/* ── Font-family utilities ──
+   @theme inline doesn't generate utilities when the value contains var(),
+   so we define them explicitly here. */
+@layer utilities {
+  .font-heading  { font-family: var(--font-heading); }
+  .font-body     { font-family: var(--font-body); }
+  .font-persian  { font-family: var(--font-persian); }
+  .font-caslon   { font-family: var(--font-caslon); }
+  .font-garamond { font-family: var(--font-garamond); }
+}
+
+/* ── Glass UI components ── */
+
+/* Stronger, more opaque glass for the navbar — tinted with the current
+   background so it adapts to the active theme. */
+.glass-strong {
+  background-color: color-mix(in srgb, var(--background) 65%, transparent);
+  backdrop-filter: blur(16px);
+  border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.glass-btn {
+  background-color: color-mix(in srgb, white 10%, transparent);
+  backdrop-filter: blur(12px);
+  border: 1px solid color-mix(in srgb, white 20%, transparent);
+  transition: background-color 0.2s, border-color 0.2s;
+  will-change: backdrop-filter;
+}
+
+.glass-btn {
+  background-color: color-mix(in srgb, white 30%, transparent);
+  border-color: color-mix(in srgb, gray 10%, transparent);
+}
+
+.glass-btn:hover {
+  background-color: color-mix(in srgb, white 20%, transparent);
+  border-color: color-mix(in srgb, white 30%, transparent);
+}
+
+[data-theme="dark"] .glass-btn {
+  background-color: color-mix(in srgb, white 5%, transparent);
+  border-color: color-mix(in srgb, white 10%, transparent);
+}
+[data-theme="dark"] .glass-btn:hover {
+  background-color: color-mix(in srgb, white 10%, transparent);
+  border-color: color-mix(in srgb, white 20%, transparent);
+}
+
+.glass-card {
+  border-radius: 1rem;
+  border: 2px solid color-mix(in srgb, rgb(147, 147, 147) 15%, transparent);
+  background-color: color-mix(in srgb, white 60%, transparent);
+  backdrop-filter: blur(24px);
+  font-family: var(--font-body);
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  will-change: backdrop-filter;
+}
+
+[data-theme="dark"] .glass-card {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, white 15%, transparent);
+  background-color: color-mix(in srgb, white 10%, transparent);
+  backdrop-filter: blur(24px);
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  will-change: backdrop-filter;
+}
+
+/* Accent (yellow) glass — for page titles / things that should read as
+   distinct from the neutral content cards. A warm gold wash that works in
+   both light and dark: the background is always a yellow tint (not foreground),
+   so it never goes dark-murky in light mode. */
+.glass-card-accent {
+  border-radius: 1rem;
+  border: 2px solid color-mix(in srgb, var(--iran-yellow) 55%, transparent);
+  background-color: color-mix(in srgb, var(--iran-yellow) 14%, transparent);
+  backdrop-filter: blur(24px);
+  font-family: var(--font-body);
+  box-shadow:
+    0 10px 30px -10px color-mix(in srgb, var(--iran-yellow) 35%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--iran-yellow) 40%, transparent);
+  will-change: backdrop-filter;
+}
+
+/* Light mode: boost the fill and add a warm inner shadow to lift it off the page. */
+:root .glass-card-accent {
+  background-color: color-mix(in srgb, var(--iran-yellow) 22%, white);
+  box-shadow:
+    0 10px 30px -10px color-mix(in srgb, var(--iran-yellow) 30%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--iran-yellow) 50%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--iran-yellow) 20%, transparent);
+}
+
+/* Light mode: the gold heading sits on a warm amber fill, so it's low-contrast.
+   Without changing the text colour, deepen its shadow into an embossed dark
+   edge that separates the letters from the background. (Unlayered so it beats
+   the inline `[text-shadow:…]` utility, which lives in the utilities layer.) */
+[data-theme="light"] .glass-card-accent h1 {
+  text-shadow:
+    0 1px 1px rgb(0 0 0 / 0.55),
+    0 2px 6px rgb(0 0 0 / 0.30);
+}
+
+/* Dark mode: the gradient backdrop bleeds through a fully transparent base and
+   kills text contrast. Mix in a dark opaque layer so the card is dark enough
+   for light text to read comfortably, while keeping the yellow character. */
+[data-theme="dark"] .glass-card-accent {
+  background-color: color-mix(
+    in srgb,
+    var(--iran-yellow) 12%,
+    color-mix(in srgb, var(--background) 70%, transparent)
+  );
+}
+
+.glass-frame {
+  border-radius: 1rem;
+  border: 1px solid transparent;
+  /* Top layer (padding-box) is the inner glass background. 
+     Bottom layer (border-box) is the gradient border. */
+  background: 
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, black 8%, transparent) 0%,
+      color-mix(in srgb, black 1%, transparent) 100%
+    ) padding-box,
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, white 40%, transparent) 0%,
+      color-mix(in srgb, white 5%, transparent) 100%
+    ) border-box;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  will-change: backdrop-filter;
+}
+
+[data-theme="dark"] .glass-frame {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, white 20%, transparent) 0%,
+      color-mix(in srgb, white 4%, transparent) 100%
+    ) padding-box,
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, white 50%, transparent) 0%,
+      color-mix(in srgb, white 10%, transparent) 100%
+    ) border-box;
+}
+
+/* ── Scroll reveal (used by ScrollReveal component) ── */
+
+.scroll-reveal {
+  opacity: 0;
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  /* No will-change: transform/opacity here — it makes this element a
+     "backdrop root", which neutralizes backdrop-filter on descendants
+     like .glass-card (the blur would have nothing behind it to blur). */
+}
+
+.social-buttons {
+  font-family: var(--font-roboto-condensed) !important;
+}
+
+.scroll-revealed {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ── Section cross-fade (scroll-driven) ──
+   Opacity is set in JS (components/SectionFade.tsx) from each card's distance
+   to the viewport centre, so adjacent sections cross-fade in place as you
+   scroll. Done in JS rather than CSS scroll-timelines for reliable Safari
+   support. The fade is applied to the card itself, so its backdrop blur stays
+   intact while it rests in view (the blur only softens momentarily mid-fade).
+   Default opacity 1 keeps content visible before JS runs / if it never does. */
+.section-fade {
+  opacity: 1;
+}
+
+/* ── Mobile hero reveals (Apple-style stagger) ── */
+
+.mobile-reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  animation: mobile-fade-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-play-state: paused;
+}
+
+.mobile-reveal-1 { animation-delay: 0ms; }
+.mobile-reveal-2 { animation-delay: 200ms; }
+
+/* Trigger animations when the element scrolls into view */
+@supports (animation-timeline: view()) {
+  .mobile-reveal {
+    animation-play-state: running;
+    animation-timeline: view();
+    animation-range: entry 0% entry 40%;
+  }
+}
+
+/* Fallback: use IntersectionObserver class toggle */
+@supports not (animation-timeline: view()) {
+  .mobile-reveal {
+    animation: none;
+    opacity: 0;
+    transform: translateY(50px);
+    transition:
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .mobile-reveal.in-view {
+    opacity: 1;
+    transform: none;
+  }
+  .mobile-reveal-2.in-view { transition-delay: 200ms; }
+}
+
+@keyframes mobile-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Social buttons stagger within their group */
+.social-btn {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: social-slide-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-play-state: paused;
+}
+
+@supports (animation-timeline: view()) {
+  .social-btn {
+    animation-play-state: running;
+    animation-timeline: view();
+    animation-range: entry 0% entry 50%;
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  .social-btn {
+    animation: none;
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .mobile-reveal.in-view .social-btn {
+    opacity: 1;
+    transform: none;
+  }
+  .mobile-reveal.in-view .social-btn:nth-child(1) { transition-delay: 200ms; }
+  .mobile-reveal.in-view .social-btn:nth-child(2) { transition-delay: 320ms; }
+  .mobile-reveal.in-view .social-btn:nth-child(3) { transition-delay: 440ms; }
+}
+
+@keyframes social-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reusable link hint shimmer (All viewports) */
+.link-shimmer {
+  --shimmer-color: rgb(73, 124, 195);
+  --shimmer-base: currentColor;
+  display: inline-block;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 20%,
+    var(--shimmer-color) 50%,
+    transparent 80%,
+    transparent 100%
+  );
+  background-color: var(--shimmer-base);
+  background-repeat: no-repeat;
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: link-shimmer-sweep 4s linear infinite;
+}
+
+/* Reusable mobile-only link hint shimmer */
+@media (max-width: 767.98px) {
+  .link-shimmer-mobile {
+    --shimmer-color: rgb(73, 124, 195);
+    --shimmer-base: currentColor;
+    display: inline-block;
+    background-image: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 20%,
+      var(--shimmer-color) 50%,
+      transparent 80%,
+      transparent 100%
+    );
+    background-color: var(--shimmer-base);
+    background-repeat: no-repeat;
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: link-shimmer-sweep 4s linear infinite;
+
+  }
+}
+
+@keyframes link-shimmer-sweep {
+  0% {
+    background-position: 200% center;
+  }
+  50% {
+    background-position: -100% center;
+  }
+  100% {
+    background-position: -100% center;
+  }
+}

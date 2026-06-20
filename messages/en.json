@@ -1,0 +1,21 @@
+{
+  "Hero": {
+    "name": "Lion and Sun Student Association",
+    "intro": "We are a community of Iranian students at the University of Toronto, united for a free Iran and standing behind transitional leader Crown Prince Reza Pahlavi."
+  },
+  "Home": {
+    "welcome": "Who We Are",
+
+    "mission:header": "Our Goal",
+    "mission:text": "We aim to echo the voices of the brave Iranians fighting for their freedom."
+  },
+  "About": {
+    "heading": "Lion and Sun Student Association (LSSA)",
+    "intro": "We are a community of Iranian students at the University of Toronto, united for a free Iran and standing behind transitional leader Crown Prince Reza Pahlavi."
+  },
+  "Mission": {
+    "heading": "Our Goal",
+    "text": "We aim to echo the voices of the brave Iranians fighting for their freedom."
+  
+  }
+}

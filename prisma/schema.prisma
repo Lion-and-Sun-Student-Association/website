@@ -1,0 +1,167 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  OWNER
+}
+
+enum PostTypes {
+  STATEMENT
+}
+
+model User {
+  id                      String           @id @default(cuid())
+  email                   String           @unique
+  passwordHash            String?
+  role                    UserRole         @default(USER)
+  isActive                Boolean          @default(true)
+  firstName               String           @default("user")
+  lastName                String           @default("user")
+  bio                     String?
+  avatarUrl               String?
+  degree                  String?
+  program                 String?
+  showAbout               String?
+  refreshTokens           RefreshToken[]
+  statements              Statement[]
+  invitesCreated          Invite[]
+  eventsCreated           Event[]           @relation("EventCreator")
+  eventsUpdated           Event[]           @relation("EventUpdater")
+  publicationsPosted      Publication[]     @relation("PublicationPoster")
+}
+
+model RefreshToken {
+  id         String   @id
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  replacedAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model Event {
+  id              String   @id @default(cuid())
+  name            String
+  description     String?
+  details         String?
+  dateTime        DateTime
+  endDateTime     DateTime?
+  posterImageUrl  String?
+  location        String 
+  locationLat     Float?
+  locationLng     Float?
+  registrationUrl String?
+  createdAt       DateTime  @default(now())
+  creatorId       String?
+  createdBy       User?      @relation("EventCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+  updatedAt       DateTime  @updatedAt
+  lastUpdaterId   String?
+  lastUpdateBy    User?      @relation("EventUpdater", fields: [lastUpdaterId], references: [id], onDelete: SetNull)
+  collaborators   Collaborator[]
+
+  @@index([dateTime])
+}
+
+model Collaborator {
+  id            String    @id @default(cuid())
+  name          String
+  link          String?
+  events        Event[]
+  @@index([name])
+}
+
+model Post {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  type          PostTypes
+  content       String
+}
+
+model Statement {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  content       String
+  date          DateTime?
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+}
+
+model Publication {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  content       String
+  date          DateTime?
+  authors       String[]                  // free-text contributor names, in order
+  posterId      String?                   // the admin who posted it
+  poster        User?       @relation("PublicationPoster", fields: [posterId], references: [id], onDelete: SetNull)
+}
+
+/// An admin-authored page rendered as a CrossfadeStack of Sections.
+model Page {
+  id        String    @id @default(cuid())
+  slug      String    @unique          // public URL: /[slug]
+  title     String
+  published Boolean   @default(false)   // drafts are hidden from the public route
+  sections  Section[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+/// One <Section> within a page. Each slot stores a Block[] as JSON.
+/// Block shape lives in lib/blocks.ts (the single source of truth).
+model Section {
+  id          String  @id @default(cuid())
+  pageId      String
+  page        Page    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  order       Int                       // position within the page's stack
+  topAlign    String  @default("start") // "start" | "center" | "end"
+  bottomAlign String  @default("start")
+  main        Json                      // Block[] — required main card
+  top         Json?                     // Block[] — optional satellite slots
+  bottom      Json?
+  left        Json?
+  right       Json?
+
+  @@index([pageId, order])
+}
+
+/// A one-time invite that lets a vetted exec create their own admin account.
+/// Only the SHA-256 hash of the token is stored — the raw token lives only in
+/// the invite link shown once to the inviting admin.
+model Invite {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique          // sha256(rawToken)
+  email       String?                    // optional: bind the invite to one email
+  role        UserRole  @default(ADMIN)  // role granted when accepted
+  expiresAt   DateTime
+  acceptedAt  DateTime?                  // set once on acceptance (one-time use)
+  createdById String?
+  createdBy   User?     @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+
+  @@index([expiresAt])
+}
