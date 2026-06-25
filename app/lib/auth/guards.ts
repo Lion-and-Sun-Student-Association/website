@@ -21,7 +21,6 @@ export async function requireUser(request: NextRequest) {
   }
   const user = await db.user.findUnique({
     where: { id: payload.sub },
-    include: { profile: true },
   });
 
   if (!user || !user.isActive) {
