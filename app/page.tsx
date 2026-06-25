@@ -27,7 +27,9 @@ export default async function Home() {
         {/* Intro block: "Welcome" sits above the main card, left-aligned to it. */}
         <Section
           id="about"
-          top={<h1 className="text-center text-xl font-bold">{t("welcome")}</h1>}
+          top={
+          <h1 className="text-center text-xl font-bold">{t("welcome")}</h1>
+        }
           topAlign="start"
         >
           <ClubIntro />

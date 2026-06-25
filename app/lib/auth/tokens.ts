@@ -11,7 +11,6 @@ import { db } from "@/app/lib/db/client";
 type AuthenticatedUser = {
   id: string;
   email: string;
-  username: string;
   role: "USER" | "ADMIN" | "OWNER";
   isActive?: boolean;
 };
@@ -29,7 +28,6 @@ export function serializeAuthUser(user: AuthenticatedUser) {
   return {
     id: user.id,
     email: user.email,
-    username: user.username,
     role: user.role,
   };
 }
@@ -142,7 +140,6 @@ export async function rotateRefreshToken(refreshToken: string): Promise<AuthResp
   } = await mintTokens({
     id: storedToken.user.id,
     email: storedToken.user.email,
-    username: storedToken.user.username,
     role: storedToken.user.role,
   });
 
@@ -174,7 +171,6 @@ export async function rotateRefreshToken(refreshToken: string): Promise<AuthResp
     user: serializeAuthUser({
       id: storedToken.user.id,
       email: storedToken.user.email,
-      username: storedToken.user.username,
       role: storedToken.user.role,
     }),
   };

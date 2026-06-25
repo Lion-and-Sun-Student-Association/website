@@ -1,5 +1,7 @@
 node_modules
 .next
+.neon
+.agents
 
 # Keep environment variables out of version control
 .env*
