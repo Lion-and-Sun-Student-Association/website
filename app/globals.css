@@ -9,7 +9,7 @@
   /* Dark in both themes; light mode is just a brighter navy than dark mode.
      Page-level text is therefore light in both themes (see --foreground); the
      dark text needed inside the white glass cards is re-scoped on .glass-card. */
-  --background: #0d348f;
+  --background: #0d3b8f;
   --foreground: #ededed;
   --sunset-gold: #e2ddce;
   --uoft-primary: #1E3765;
@@ -49,7 +49,7 @@
 /* Theme is controlled manually via the data-theme attribute (set by
    ThemeProvider), not the OS preference, so the toggle takes effect. */
 [data-theme="dark"] {
-  --background: #04133b;
+  --background: #020a23;
   --foreground: #ededed;
   --muted: #9ca3af;
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import BlurScrim from "@/app/components/BlurScrim";
 import PageHeading from "@/app/components/PageHeading";
 import StatementCard from "@/app/components/statements/StatementCard";
 import { getStatementsPage } from "@/lib/getStatements";
@@ -25,7 +26,10 @@ export default async function StatementsPage({
       <PageHeading title="Statements" count={total} />
 
       {statements.length === 0 ? (
-        <p className="text-muted">No statements yet. Check back soon.</p>
+        <div className="relative isolate inline-block">
+          <BlurScrim />
+          <p className="text-muted">No statements yet. Check back soon.</p>
+        </div>
       ) : (
         <ul className="flex flex-col gap-4">
           {statements.map((statement) => (

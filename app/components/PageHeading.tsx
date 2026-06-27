@@ -1,8 +1,13 @@
+import BlurScrim from "@/app/components/BlurScrim";
+
 /**
  * Editorial masthead for the public list pages (Events / Statements /
  * Publications). Sits directly on the dark page background, so the title is the
  * light foreground colour with the yellow accent used as a small graphic tab.
  * The count is shown as a zero-padded serif numeral — an "edition number" touch.
+ *
+ * A soft blur (BlurScrim) sits behind the whole header to settle the floating
+ * names for readability.
  */
 export default function PageHeading({
   title,
@@ -12,7 +17,8 @@ export default function PageHeading({
   count?: number;
 }) {
   return (
-    <header className="mb-12 flex flex-col gap-5">
+    <header className="relative isolate mb-12 flex flex-col gap-5">
+      <BlurScrim />
       <span className="h-1 w-12 rounded-full bg-accent" />
       <div className="flex items-baseline justify-between gap-4 border-b border-foreground/15 pb-5">
         <h1 className="font-caslon text-5xl font-bold leading-none text-foreground sm:text-6xl">

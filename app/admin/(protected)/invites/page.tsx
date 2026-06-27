@@ -23,7 +23,7 @@ export default async function InvitesPage() {
         <h1 className="font-caslon text-2xl font-bold">Invites</h1>
         <p className="max-w-prose text-sm text-muted">
           Generate a one-time link for a vetted exec. They open it, set their own
-          username and password, and get an admin account immediately. Links
+          email and password, and get an admin account immediately. Links
           expire in 7 days.
         </p>
         <GenerateInvite />

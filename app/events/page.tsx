@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import BlurScrim from "@/app/components/BlurScrim";
 import PageHeading from "@/app/components/PageHeading";
 import EventCard from "@/app/components/events/EventCard";
 import { getEventsPage } from "@/lib/getEvents";
@@ -25,7 +26,10 @@ export default async function EventsPage({
       <PageHeading title="Events" count={total} />
 
       {events.length === 0 ? (
-        <p className="text-muted">No events yet. Check back soon.</p>
+        <div className="relative isolate inline-block">
+          <BlurScrim />
+          <p className="text-muted">No events yet. Check back soon.</p>
+        </div>
       ) : (
         <ul className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
           {events.map((event) => (
