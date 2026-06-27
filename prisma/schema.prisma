@@ -5,10 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider      = "prisma-client"
-  output        = "../generated/prisma"
-  // "native" = local dev engine; "rhel-openssl-3.0.x" = Vercel's serverless
-  // runtime, so the Linux query engine is always emitted for deployment.
+  // Classic generator → default output in node_modules/.prisma/client, which
+  // Next.js externalizes and whose engine binary it bundles automatically.
+  // (A custom output dir gets bundled by Turbopack, which breaks the engine
+  // lookup on Vercel — hence the "could not locate the Query Engine" error.)
+  provider      = "prisma-client-js"
+  // "native" = local dev engine; "rhel-openssl-3.0.x" = Vercel's serverless runtime.
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 

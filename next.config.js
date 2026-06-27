@@ -1,13 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Force files into the serverless function bundle that Next's tracer can't
-  // detect on its own:
-  //  - data/victims.csv is read at runtime via a dynamic process.cwd() path.
-  //  - the Prisma query engine (.so.node) lives in the custom generated/prisma
-  //    output dir; without this it isn't copied and queries throw
-  //    "could not locate the Query Engine for runtime rhel-openssl-3.0.x".
+  // Keep Prisma out of the server bundle so its query engine resolves at
+  // runtime from node_modules. Otherwise Turbopack inlines the client into the
+  // server chunks and the engine lookup fails on Vercel ("could not locate the
+  // Query Engine for runtime rhel-openssl-3.0.x").
+  serverExternalPackages: ['@prisma/client', '.prisma/client'],
+  // data/victims.csv is read at runtime via a dynamic process.cwd() path that
+  // Next's tracer can't detect, so force it into the function bundle.
   outputFileTracingIncludes: {
-    '/**': ['./data/victims.csv', './generated/prisma/**/*'],
+    '/**': ['./data/victims.csv'],
   },
   images: {
     // Admins paste arbitrary poster/image URLs, so allow any https host.

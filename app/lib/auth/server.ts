@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { verifyAccessToken } from "@/app/lib/auth/jwt";
 import { getAccessTokenCookieName } from "@/app/lib/auth/session";
 import { db } from "@/app/lib/db/client";
-import { UserRole } from "@/generated/prisma/enums";
+import { UserRole } from "@prisma/client";
 
 /**
  * Session helpers for Server Components and Server Actions, which read the

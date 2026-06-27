@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/app/lib/db/client";
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from "@prisma/client";
 import { requireAdmin } from "@/app/lib/auth/server";
 
 export type EventFormState = { error?: string };

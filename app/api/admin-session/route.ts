@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/app/lib/auth/server";
-import { UserRole } from "@/generated/prisma/enums";
+import { UserRole } from "@prisma/client";
 
 /**
  * Lightweight client-facing check for the navbar's Admin menu. Lives in an API

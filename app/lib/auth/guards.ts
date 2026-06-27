@@ -1,4 +1,4 @@
-import { UserRole } from "@/generated/prisma/enums";
+import { UserRole } from "@prisma/client";
 import { verifyAccessToken } from "@/app/lib/auth/jwt";
 import { readAccessToken } from "@/app/lib/auth/session";
 import { db } from "@/app/lib/db/client";
