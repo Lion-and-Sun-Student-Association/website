@@ -20,12 +20,14 @@ export async function acceptInvite(
   formData: FormData
 ): Promise<AcceptState> {
   const token = String(formData.get("token") ?? "");
-  const username = String(formData.get("username") ?? "").trim();
+  const firstName = String(formData.get("firstName") ?? "").trim();
+  const lastName = String(formData.get("lastName") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const formEmail = String(formData.get("email") ?? "").trim().toLowerCase();
 
   if (!token) return { error: "Missing invite token." };
-  if (username.length < 2) return { error: "Choose a username (2+ characters)." };
+  if (!firstName) return { error: "Enter your first name." };
+  if (!lastName) return { error: "Enter your last name." };
   if (password.length < 12) {
     return { error: "Password must be at least 12 characters." };
   }
@@ -49,7 +51,8 @@ export async function acceptInvite(
       const created = await tx.user.create({
         data: {
           email,
-          username,
+          firstName,
+          lastName,
           passwordHash,
           role: invite.role,
           isActive: true,
@@ -67,7 +70,7 @@ export async function acceptInvite(
     const code = (err as { code?: string }).code;
     const message = (err as { message?: string }).message;
     if (code === "P2002") {
-      return { error: "That email or username is already taken." };
+      return { error: "That email is already taken." };
     }
     if (message === "ALREADY_ACCEPTED") {
       return { error: "This invite has already been used." };

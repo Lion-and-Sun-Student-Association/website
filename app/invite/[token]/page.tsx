@@ -24,8 +24,8 @@ export default async function AcceptInvitePage({
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="font-caslon text-2xl font-bold">Create your admin account</h1>
             <p className="max-w-sm text-sm text-muted">
-              You&apos;ve been invited to the LSSA admin. Choose a username and
-              password to finish.
+              You&apos;ve been invited to the LSSA admin. Enter your name and
+              choose a password to finish.
             </p>
           </div>
           <AcceptForm token={token} lockedEmail={invite.email} />

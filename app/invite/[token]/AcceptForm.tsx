@@ -31,14 +31,26 @@ export default function AcceptForm({
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="text-muted">Username</span>
-        <input
-          name="username"
-          required
-          className="rounded-lg border border-white/15 bg-transparent px-3 py-2 outline-none focus:border-accent"
-        />
-      </label>
+      <div className="flex gap-3">
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          <span className="text-muted">First name</span>
+          <input
+            name="firstName"
+            autoComplete="given-name"
+            required
+            className="rounded-lg border border-white/15 bg-transparent px-3 py-2 outline-none focus:border-accent"
+          />
+        </label>
+        <label className="flex flex-1 flex-col gap-1 text-sm">
+          <span className="text-muted">Last name</span>
+          <input
+            name="lastName"
+            autoComplete="family-name"
+            required
+            className="rounded-lg border border-white/15 bg-transparent px-3 py-2 outline-none focus:border-accent"
+          />
+        </label>
+      </div>
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="text-muted">Password (12+ characters)</span>
