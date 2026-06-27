@@ -41,8 +41,8 @@ export default async function StatementDetailPage({
       </Link>
 
       <article className="glass-card flex flex-col gap-6">
-        {/* Issuer block — reads as an official seal/letterhead */}
-        <div className="flex flex-col items-center gap-3 border-b border-foreground/10 pb-6">
+        {/* Official letterhead — centered emblem, issuer, title, date */}
+        <header className="flex flex-col items-center gap-4 border-b border-foreground/10 pb-8 text-center">
           <Image
             src="/navbar/Lion_and_Sun.svg.png"
             alt="Lion and Sun Student Association"
@@ -50,28 +50,20 @@ export default async function StatementDetailPage({
             height={56}
             className="opacity-90 [filter:_drop-shadow(0_1px_2px_rgb(0_0_0_/_40%))]"
           />
-          <div className="flex flex-col items-center gap-0.5 text-center">
-            <p className="font-caslon text-xs font-semibold uppercase tracking-[0.25em] text-foreground/60">
-              Statement by
-            </p>
-            <p className="font-caslon text-sm font-semibold uppercase tracking-[0.2em] text-foreground/90">
-              Lion and Sun Student Association
-            </p>
-          </div>
-        </div>
-
-        <header className="flex flex-col gap-3 border-l-4 border-accent/80 pl-5">
+          <span className="font-caslon text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-foreground/55">
+            Statement · Lion and Sun Student Association
+          </span>
+          <span className="h-px w-10 bg-accent/70" />
+          <h1 className="font-caslon text-4xl font-bold leading-tight md:text-5xl">
+            {statement.title}
+          </h1>
           {statement.date && (
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            <p className="text-xs uppercase tracking-[0.18em] text-muted">
               {formatDate(statement.date)}
             </p>
           )}
-          <h1 className="font-caslon text-3xl font-bold leading-tight">
-            {statement.title}
-          </h1>
         </header>
 
-        
 
         <div className="prose prose-base dark:prose-invert max-w-none font-garamond md:prose-xl">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>

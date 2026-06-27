@@ -44,18 +44,21 @@ export default async function PublicationDetailsPage({
       </Link>
 
       <article className="glass-card flex flex-col gap-6">
-        <header className="flex flex-col gap-4 border-b border-foreground/10 pb-6">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">
-            Publication
-          </span>
+        <header className="flex flex-col gap-4 border-b border-foreground/10 pb-7">
+          <div className="flex items-center gap-2.5">
+            <span className="h-4 w-1 rounded-full bg-accent" />
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/55">
+              Publication
+            </span>
+          </div>
 
-          <h1 className="font-caslon text-3xl font-bold leading-tight md:text-4xl">
+          <h1 className="font-caslon text-4xl font-bold leading-tight md:text-5xl">
             {publication.title}
           </h1>
 
           {/* Authors take the spotlight */}
           {byline && (
-            <p className="text-lg text-foreground/90">
+            <p className="text-lg text-foreground/85">
               <span className="text-muted">by</span>{" "}
               <span className="font-medium">{byline}</span>
             </p>

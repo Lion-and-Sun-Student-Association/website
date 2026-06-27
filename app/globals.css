@@ -6,20 +6,25 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-  --sunset-gold: #fcd34d;
+  /* Dark in both themes; light mode is just a brighter navy than dark mode.
+     Page-level text is therefore light in both themes (see --foreground); the
+     dark text needed inside the white glass cards is re-scoped on .glass-card. */
+  --background: #0d348f;
+  --foreground: #ededed;
+  --sunset-gold: #e2ddce;
   --uoft-primary: #1E3765;
   --uoft-sec-1: #007FA3;
   --uoft-sec-2: #6FC7EA;
   --iran-green: #00a42f;
   --iran-red: #e70719;
   --iran-yellow: #e0ad37;
+  --iran-green-bg: #00661d;
+  --iran-red-bg: #5c020a;
 
   /* Navbar / UI accents */
   --accent: var(--iran-yellow);
   --accent-secondary: var(--uoft-sec-1);
-  --muted: #5a5a5a;
+  --muted: #aab3c5;
 
   --font-heading: var(--font-crimson), Georgia, serif;
   --font-body: var(--font-lato), system-ui, sans-serif;
@@ -44,7 +49,7 @@
 /* Theme is controlled manually via the data-theme attribute (set by
    ThemeProvider), not the OS preference, so the toggle takes effect. */
 [data-theme="dark"] {
-  --background: #000b1f;
+  --background: #04133b;
   --foreground: #ededed;
   --muted: #9ca3af;
 }
@@ -112,10 +117,10 @@ a {
     /* the three flag bands */
     linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--iran-green) 75%, transparent) 0%,
+      color-mix(in srgb, var(--iran-green-bg) 55%, transparent) 0%,
       transparent 45%,
       transparent 55%,
-      color-mix(in srgb, var(--iran-red) 75%, transparent) 100%
+      color-mix(in srgb, var(--iran-red-bg) 55%, transparent) 100%
     );
   /* Slightly taller than the viewport so the bands can sway vertically. */
   background-size: 100% 116%, 100% 116%;
@@ -132,10 +137,10 @@ a {
   background-image:
     linear-gradient(
       to bottom,
-      color-mix(in srgb, var(--iran-green) 38%, transparent) 0%,
+      color-mix(in srgb, var(--iran-green-bg) 90%, transparent) 0%,
       transparent 42%,
       transparent 58%,
-      color-mix(in srgb, var(--iran-red) 32%, transparent) 100%
+      color-mix(in srgb, var(--iran-red-bg) 90%, transparent) 100%
     );
 }
 
@@ -197,9 +202,16 @@ a {
 }
 
 .glass-card {
+  /* A white "island" of content on the dark page background. The fill is kept
+     high-opacity so it stays white over the dark backdrop, and the foreground/
+     muted tokens are re-scoped to dark here so every text-foreground / text-muted
+     utility used inside the card reads on white. (Reset for dark mode below.) */
+  --foreground: #171717;
+  --muted: #5a5a5a;
+  color: var(--foreground);
   border-radius: 1rem;
   border: 2px solid color-mix(in srgb, rgb(147, 147, 147) 15%, transparent);
-  background-color: color-mix(in srgb, white 60%, transparent);
+  background-color: color-mix(in srgb, white 90%, transparent);
   backdrop-filter: blur(24px);
   font-family: var(--font-body);
   padding: 1.5rem;
@@ -208,6 +220,9 @@ a {
 }
 
 [data-theme="dark"] .glass-card {
+  /* Dark-mode cards are translucent dark, not white — restore light text. */
+  --foreground: #ededed;
+  --muted: #9ca3af;
   border-radius: 1rem;
   border: 1px solid color-mix(in srgb, white 15%, transparent);
   background-color: color-mix(in srgb, white 10%, transparent);
@@ -235,7 +250,7 @@ a {
 
 /* Light mode: boost the fill and add a warm inner shadow to lift it off the page. */
 :root .glass-card-accent {
-  background-color: color-mix(in srgb, var(--iran-yellow) 22%, white);
+  background-color: color-mix(in srgb, var(--iran-yellow) 2%, white);
   box-shadow:
     0 10px 30px -10px color-mix(in srgb, var(--iran-yellow) 30%, transparent),
     inset 0 1px 0 color-mix(in srgb, var(--iran-yellow) 50%, transparent),
@@ -249,7 +264,7 @@ a {
 [data-theme="light"] .glass-card-accent h1 {
   text-shadow:
     0 1px 1px rgb(0 0 0 / 0.55),
-    0 2px 6px rgb(0 0 0 / 0.30);
+    0 2px 6px rgba(98, 67, 67, 0.3);
 }
 
 /* Dark mode: the gradient backdrop bleeds through a fully transparent base and

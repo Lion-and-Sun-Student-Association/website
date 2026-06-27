@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import PageHeading from "@/app/components/PageHeading";
 import PublicationCard from "@/app/components/publications/PublicationsCard";
 import { getPublicationsPage } from "@/lib/getPublications";
 
@@ -21,18 +22,7 @@ export default async function PublicationsPage({
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 pb-16 pt-40">
-      <header className="mb-8">
-        <div className="glass-card-accent inline-flex flex-col gap-1 px-7 py-5">
-          <h1 className="font-caslon text-3xl font-bold text-accent [text-shadow:_1px_1px_2px_rgb(0_0_0_/_35%)]">
-            Publications
-          </h1>
-          <p className="text-sm text-foreground/80">
-            {total > 0
-              ? `${total} publication${total === 1 ? "" : "s"}`
-              : "Our publications will appear here."}
-          </p>
-        </div>
-      </header>
+      <PageHeading title="Publications" count={total} />
 
       {publications.length === 0 ? (
         <p className="text-muted">No publications yet. Check back soon.</p>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import PageHeading from "@/app/components/PageHeading";
 import StatementCard from "@/app/components/statements/StatementCard";
 import { getStatementsPage } from "@/lib/getStatements";
 
@@ -21,18 +22,7 @@ export default async function StatementsPage({
 
   return (
     <main className="mx-auto min-h-screen max-w-6xl px-6 pb-16 pt-40">
-      <header className="mb-8">
-        <div className="glass-card-accent inline-flex flex-col gap-1 px-7 py-5">
-          <h1 className="font-caslon text-3xl font-bold text-accent [text-shadow:_1px_1px_2px_rgb(0_0_0_/_35%)]">
-            Statements
-          </h1>
-          <p className="text-sm text-foreground/80">
-            {total > 0
-              ? `${total} statement${total === 1 ? "" : "s"}`
-              : "Our statements will appear here."}
-          </p>
-        </div>
-      </header>
+      <PageHeading title="Statements" count={total} />
 
       {statements.length === 0 ? (
         <p className="text-muted">No statements yet. Check back soon.</p>

@@ -46,13 +46,14 @@ const introBlocks: {
 export default function AboutPage() {
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 pb-24 pt-40">
-      {/* ── Title block (shared accent-glass treatment, sized up) ── */}
+      {/* ── Title block — accent tab + editorial masthead ── */}
       <ScrollReveal>
-        <header className="glass-card-accent flex flex-col gap-3 px-8 py-7">
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-foreground/70">
+        <header className="flex flex-col gap-4">
+          <span className="h-1 w-12 rounded-full bg-accent" />
+          <p className="text-xs font-medium uppercase tracking-[0.25em] text-foreground/55">
             About Us
           </p>
-          <h1 className="font-caslon text-4xl font-bold leading-tight text-accent [text-shadow:_1px_1px_2px_rgb(0_0_0_/_35%)] sm:text-5xl">
+          <h1 className="font-caslon text-5xl font-bold leading-tight text-foreground sm:text-6xl">
             Lion and Sun Student Association
           </h1>
           <p className="max-w-2xl text-lg text-foreground/80">

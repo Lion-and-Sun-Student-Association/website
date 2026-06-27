@@ -43,7 +43,7 @@ export default async function EventDetailPage({
       </Link>
 
       <div className="glass-card flex flex-col gap-6">
-        {/* LSSA header — warmer than the statement version, logo inline with name */}
+        {/* Masthead — emblem + section eyebrow */}
         <div className="flex items-center gap-3 border-b border-foreground/10 pb-5">
           <Image
             src="/navbar/Lion_and_Sun.svg.png"
@@ -53,10 +53,10 @@ export default async function EventDetailPage({
             className="opacity-85 [filter:_drop-shadow(0_1px_2px_rgb(0_0_0_/_35%))]"
           />
           <div className="flex flex-col">
-            <span className="font-caslon text-xs font-semibold uppercase tracking-[0.2em] text-foreground/50">
-              Event by
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-foreground/55">
+              Event
             </span>
-            <span className="font-caslon text-sm font-semibold tracking-wide text-foreground/80">
+            <span className="text-xs text-muted">
               Lion and Sun Student Association
             </span>
           </div>
@@ -73,7 +73,7 @@ export default async function EventDetailPage({
             >
               {past ? "Past event" : "Upcoming"}
             </span>
-            <h1 className="font-caslon text-3xl font-bold leading-tight">
+            <h1 className="font-caslon text-4xl font-bold leading-tight">
               {event.name}
             </h1>
 
