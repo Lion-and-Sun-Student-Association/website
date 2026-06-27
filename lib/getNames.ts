@@ -26,7 +26,16 @@ const CSV_PATH = path.join(process.cwd(), "data", "victims.csv");
  * no matter how many components call it.
  */
 export const getNames = cache(async (): Promise<NameEntry[]> => {
-  const file = await readFile(CSV_PATH, "utf8");
+  let file: string;
+  try {
+    file = await readFile(CSV_PATH, "utf8");
+  } catch (err) {
+    // The names backdrop is decorative and this runs in the root layout on
+    // every route — a missing/unreadable CSV must degrade to "no names", never
+    // crash the whole site.
+    console.error(`getNames: could not read ${CSV_PATH}`, err);
+    return [];
+  }
 
   const { data } = Papa.parse<VictimRow>(file, {
     header: true,
