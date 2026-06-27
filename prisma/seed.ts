@@ -8,14 +8,13 @@ import { hashPassword } from "../app/lib/auth/password";
  *
  * Usage:
  *   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='a-strong-password' \
- *   ADMIN_USERNAME=admin npx tsx prisma/seed.ts
+ *   npx tsx prisma/seed.ts
  */
 const db = new PrismaClient();
 
 async function main() {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
-  const username = process.env.ADMIN_USERNAME ?? email?.split("@")[0];
 
   if (!email || !password) {
     throw new Error(
@@ -33,7 +32,6 @@ async function main() {
     update: { passwordHash, role: "OWNER", isActive: true },
     create: {
       email,
-      username: username!,
       passwordHash,
       role: "OWNER",
       isActive: true,
