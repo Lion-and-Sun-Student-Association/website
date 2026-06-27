@@ -5,8 +5,11 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider      = "prisma-client"
+  output        = "../generated/prisma"
+  // "native" = local dev engine; "rhel-openssl-3.0.x" = Vercel's serverless
+  // runtime, so the Linux query engine is always emitted for deployment.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
