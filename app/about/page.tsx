@@ -48,7 +48,7 @@ export default function AboutPage() {
     <main className="mx-auto min-h-screen max-w-5xl px-6 pb-24 pt-40">
       {/* ── Title block — accent tab + editorial masthead ── */}
       <ScrollReveal>
-        <header className="flex flex-col gap-4">
+        <header className="flex flex-col gap-4 blur-scrim">
           <span className="h-1 w-12 rounded-full bg-accent" />
           <p className="text-xs font-medium uppercase tracking-[0.25em] text-foreground/55">
             About Us

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import BlurScrim from "@/app/components/BlurScrim";
 import PageHeading from "@/app/components/PageHeading";
 import PublicationCard from "@/app/components/publications/PublicationsCard";
 import { getPublicationsPage } from "@/lib/getPublications";
@@ -26,8 +25,7 @@ export default async function PublicationsPage({
       <PageHeading title="Publications" count={total} />
 
       {publications.length === 0 ? (
-        <div className="relative isolate inline-block">
-          <BlurScrim />
+        <div className="blur-scrim inline-block">
           <p className="text-muted">No publications yet. Check back soon.</p>
         </div>
       ) : (

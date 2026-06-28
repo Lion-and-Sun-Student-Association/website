@@ -12,6 +12,7 @@ const navLinks = [
   { path: "/statements", label: "Statements" },
   { path: "/publications", label: "Publications"},
   { path: "/about", label: "About" },
+  { path: "/connect", label: "Connect" },
 ];
 
 const adminLinks = [
