@@ -3,7 +3,7 @@ import { SignJWT, jwtVerify } from "jose";
 const encoder = new TextEncoder();
 const DURATION_PATTERN = /^(\d+)([smhd])$/;
 
-type SessionRole = "USER" | "ADMIN" | "OWNER";
+type SessionRole = "EXEC" | "PRESIDENT" | "OWNER";
 type TokenType = "access" | "refresh";
 
 type BaseTokenPayload = {

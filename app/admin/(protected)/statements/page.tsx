@@ -1,14 +1,33 @@
 import Link from "next/link";
 import { db } from "@/app/lib/db/client";
+import { requireAdmin } from "@/app/lib/auth/server";
+import { canReview } from "@/app/lib/auth/roles";
 import { formatDate } from "@/lib/events";
+import StatusBadge from "../StatusBadge";
+import StatementActions from "./StatementActions";
 import DeleteStatementButton from "./DeleteStatementButton";
 
 export const metadata = { title: "Statements — Admin" };
 
+function fullName(u: { firstName: string; lastName: string } | null) {
+  return u ? `${u.firstName} ${u.lastName}` : null;
+}
+
 export default async function AdminStatementsPage() {
+  const me = await requireAdmin();
+  const reviewer = canReview(me.role);
+
   const statements = await db.statement.findMany({
-    orderBy: [{ date: "desc" }, { title: "asc" }],
-    select: { id: true, title: true, date: true },
+    // In-review items first so reviewers see what needs them at the top.
+    orderBy: [{ status: "asc" }, { date: "desc" }, { title: "asc" }],
+    select: {
+      id: true,
+      title: true,
+      date: true,
+      status: true,
+      submittedBy: { select: { firstName: true, lastName: true } },
+      approvedBy: { select: { firstName: true, lastName: true } },
+    },
   });
 
   return (
@@ -28,33 +47,43 @@ export default async function AdminStatementsPage() {
           <p className="text-muted">No statements yet. Create one above.</p>
         ) : (
           <ul className="divide-y divide-white/10 rounded-xl border border-white/10">
-            {statements.map((s) => (
-              <li
-                key={s.id}
-                className="flex items-center justify-between gap-4 px-4 py-3"
-              >
-                <div className="flex flex-col">
-                  <Link
-                    href={`/admin/statements/${s.id}`}
-                    className="font-medium hover:text-accent"
-                  >
-                    {s.title}
-                  </Link>
-                  <span className="text-sm text-muted">
-                    {s.date ? formatDate(s.date) : "No date"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Link
-                    href={`/admin/statements/${s.id}`}
-                    className="text-sm text-muted hover:text-foreground"
-                  >
-                    Edit
-                  </Link>
-                  <DeleteStatementButton id={s.id} title={s.title} />
-                </div>
-              </li>
-            ))}
+            {statements.map((s) => {
+              const submitter = fullName(s.submittedBy);
+              const approver = fullName(s.approvedBy);
+              return (
+                <li
+                  key={s.id}
+                  className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/admin/statements/${s.id}`}
+                        className="font-medium hover:text-accent"
+                      >
+                        {s.title}
+                      </Link>
+                      <StatusBadge status={s.status} />
+                    </div>
+                    <span className="text-sm text-muted">
+                      {submitter && <>By {submitter}</>}
+                      {approver && <> · Approved by {approver}</>}
+                      {s.date && <> · {formatDate(s.date)}</>}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <StatementActions id={s.id} status={s.status} canReview={reviewer} />
+                    <Link
+                      href={`/admin/statements/${s.id}`}
+                      className="text-sm text-muted hover:text-foreground"
+                    >
+                      Edit
+                    </Link>
+                    <DeleteStatementButton id={s.id} title={s.title} />
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

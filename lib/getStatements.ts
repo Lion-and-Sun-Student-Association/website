@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { ContentStatus } from "@prisma/client";
 import { db } from "@/app/lib/db/client";
 
 export const STATEMENTS_PER_PAGE = 10;
@@ -11,6 +12,8 @@ export type LoadedStatement = {
   description: string | null;
   content: string;
   date: Date | null;
+  status: ContentStatus;
+  reviewNote: string | null;
 };
 
 /** A list-card view of a statement (no full markdown content). */
@@ -32,9 +35,11 @@ export async function getStatementsPage(page: number): Promise<{
 }> {
   const current = Math.max(1, Math.floor(page) || 1);
   try {
+    const where = { status: "PUBLISHED" as const };
     const [total, statements] = await Promise.all([
-      db.statement.count(),
+      db.statement.count({ where }),
       db.statement.findMany({
+        where,
         orderBy: [{ date: "desc" }, { title: "asc" }],
         skip: (current - 1) * STATEMENTS_PER_PAGE,
         take: STATEMENTS_PER_PAGE,
@@ -60,6 +65,8 @@ export const getStatementById = cache(
           description: true,
           content: true,
           date: true,
+          status: true,
+          reviewNote: true,
         },
       });
     } catch {

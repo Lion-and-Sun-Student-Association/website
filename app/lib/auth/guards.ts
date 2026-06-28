@@ -1,6 +1,6 @@
-import { UserRole } from "@prisma/client";
 import { verifyAccessToken } from "@/app/lib/auth/jwt";
 import { readAccessToken } from "@/app/lib/auth/session";
+import { isTeamRole } from "@/app/lib/auth/roles";
 import { db } from "@/app/lib/db/client";
 import { HttpError } from "@/app/lib/http/errors";
 import { NextRequest } from "next/server";
@@ -34,7 +34,7 @@ export async function requireUser(request: NextRequest) {
 
 export async function requireAdmin(request: NextRequest) {
   const { user } = await requireUser(request);
-  if (user.role !== UserRole.ADMIN && user.role !== UserRole.OWNER) {
+  if (!isTeamRole(user.role)) {
     throw new HttpError(403, "Admin access required");
   }
   return user;

@@ -20,9 +20,16 @@ datasource db {
 }
 
 enum UserRole {
-  USER
-  ADMIN
+  EXEC
+  PRESIDENT
   OWNER
+}
+
+enum ContentStatus {
+  DRAFT             // being prepared by an exec (author only)
+  PENDING_REVIEW    // submitted; visible to the team, awaiting a president/owner
+  CHANGES_REQUESTED // bounced back with a note; exec revises and resubmits
+  PUBLISHED         // live on the public site
 }
 
 enum PostTypes {
@@ -33,7 +40,7 @@ model User {
   id                      String           @id @default(cuid())
   email                   String           @unique
   passwordHash            String?
-  role                    UserRole         @default(USER)
+  role                    UserRole         @default(EXEC)
   isActive                Boolean          @default(true)
   firstName               String           @default("user")
   lastName                String           @default("user")
@@ -43,11 +50,16 @@ model User {
   program                 String?
   showAbout               String?
   refreshTokens           RefreshToken[]
-  statements              Statement[]
   invitesCreated          Invite[]
+  // Content this user authored/submitted …
+  statementsSubmitted     Statement[]       @relation("StatementSubmitter")
   eventsCreated           Event[]           @relation("EventCreator")
   eventsUpdated           Event[]           @relation("EventUpdater")
   publicationsPosted      Publication[]     @relation("PublicationPoster")
+  // … and content this user approved/published as a reviewer.
+  statementsApproved      Statement[]       @relation("StatementApprover")
+  eventsApproved          Event[]           @relation("EventApprover")
+  publicationsApproved    Publication[]     @relation("PublicationApprover")
 }
 
 model RefreshToken {
@@ -84,8 +96,16 @@ model Event {
   lastUpdaterId   String?
   lastUpdateBy    User?      @relation("EventUpdater", fields: [lastUpdaterId], references: [id], onDelete: SetNull)
   collaborators   Collaborator[]
+  // Review workflow (createdBy above is the submitter).
+  status          ContentStatus @default(DRAFT)
+  submittedAt     DateTime?
+  approvedById    String?
+  approvedBy      User?      @relation("EventApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt      DateTime?
+  reviewNote      String?
 
   @@index([dateTime])
+  @@index([status])
 }
 
 model Collaborator {
@@ -110,8 +130,18 @@ model Statement {
   description   String?
   content       String
   date          DateTime?
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
+  status        ContentStatus @default(DRAFT)
+  // The exec (or president/owner) who authored & submitted it.
+  submittedById String
+  submittedBy   User          @relation("StatementSubmitter", fields: [submittedById], references: [id])
+  submittedAt   DateTime?
+  // The president/owner who approved & published it.
+  approvedById  String?
+  approvedBy    User?         @relation("StatementApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt    DateTime?
+  reviewNote    String?       // feedback when a reviewer requests changes
+
+  @@index([status])
 }
 
 model Publication {
@@ -121,8 +151,17 @@ model Publication {
   content       String
   date          DateTime?
   authors       String[]                  // free-text contributor names, in order
-  posterId      String?                   // the admin who posted it
+  posterId      String?                   // the team member who submitted it
   poster        User?       @relation("PublicationPoster", fields: [posterId], references: [id], onDelete: SetNull)
+  // Review workflow (poster above is the submitter).
+  status        ContentStatus @default(DRAFT)
+  submittedAt   DateTime?
+  approvedById  String?
+  approvedBy    User?       @relation("PublicationApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt    DateTime?
+  reviewNote    String?
+
+  @@index([status])
 }
 
 /// An admin-authored page rendered as a CrossfadeStack of Sections.
@@ -161,7 +200,7 @@ model Invite {
   id          String    @id @default(cuid())
   tokenHash   String    @unique          // sha256(rawToken)
   email       String?                    // optional: bind the invite to one email
-  role        UserRole  @default(ADMIN)  // role granted when accepted
+  role        UserRole  @default(EXEC)   // role granted when accepted
   expiresAt   DateTime
   acceptedAt  DateTime?                  // set once on acceptance (one-time use)
   createdById String?

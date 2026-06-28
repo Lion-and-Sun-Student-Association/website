@@ -1,4 +1,6 @@
 import { db } from "@/app/lib/db/client";
+import { requireAdmin } from "@/app/lib/auth/server";
+import { invitableRoles } from "@/app/lib/auth/roles";
 import GenerateInvite from "./GenerateInvite";
 import RevokeInviteButton from "./RevokeInviteButton";
 
@@ -12,6 +14,9 @@ function statusOf(invite: { acceptedAt: Date | null; expiresAt: Date }) {
 }
 
 export default async function InvitesPage() {
+  const me = await requireAdmin();
+  const roles = invitableRoles(me.role);
+
   const invites = await db.invite.findMany({
     orderBy: { createdAt: "desc" },
     select: { id: true, email: true, expiresAt: true, acceptedAt: true, createdAt: true },
@@ -22,11 +27,17 @@ export default async function InvitesPage() {
       <section className="flex flex-col gap-4">
         <h1 className="font-caslon text-2xl font-bold">Invites</h1>
         <p className="max-w-prose text-sm text-muted">
-          Generate a one-time link for a vetted exec. They open it, set their own
-          email and password, and get an admin account immediately. Links
+          Generate a one-time link for a vetted team member. They open it, set
+          their own name and password, and get an account immediately. Links
           expire in 7 days.
         </p>
-        <GenerateInvite />
+        {roles.length > 0 ? (
+          <GenerateInvite roles={roles} />
+        ) : (
+          <p className="text-sm text-muted">
+            Your role can&apos;t create invites.
+          </p>
+        )}
       </section>
 
       <section className="flex flex-col gap-2">

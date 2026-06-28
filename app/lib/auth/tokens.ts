@@ -11,7 +11,7 @@ import { db } from "@/app/lib/db/client";
 type AuthenticatedUser = {
   id: string;
   email: string;
-  role: "USER" | "ADMIN" | "OWNER";
+  role: "EXEC" | "PRESIDENT" | "OWNER";
   isActive?: boolean;
 };
 

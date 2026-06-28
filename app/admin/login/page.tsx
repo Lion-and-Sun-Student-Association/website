@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSessionUser } from "@/app/lib/auth/server";
+import { isTeamRole } from "@/app/lib/auth/roles";
 import LoginForm from "./LoginForm";
 
 export const metadata = { title: "Admin sign in" };
@@ -7,7 +8,7 @@ export const metadata = { title: "Admin sign in" };
 export default async function AdminLoginPage() {
   // Already signed in as an admin? Skip the form.
   const user = await getSessionUser();
-  if (user && (user.role === "ADMIN" || user.role === "OWNER")) {
+  if (user && isTeamRole(user.role)) {
     redirect("/admin/pages");
   }
 

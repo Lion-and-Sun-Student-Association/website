@@ -29,7 +29,7 @@ export default async function StatementDetailPage({
 }) {
   const { id } = await params;
   const statement = await getStatementById(id);
-  if (!statement) notFound();
+  if (!statement || statement.status !== "PUBLISHED") notFound();
 
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 pb-16 pt-40">

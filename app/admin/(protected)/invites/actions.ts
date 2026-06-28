@@ -2,8 +2,10 @@
 
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { UserRole } from "@prisma/client";
 import { db } from "@/app/lib/db/client";
 import { requireAdmin } from "@/app/lib/auth/server";
+import { canInvite } from "@/app/lib/auth/roles";
 import { hashInviteToken } from "@/app/lib/auth/invite";
 
 const INVITE_TTL_DAYS = 7;
@@ -25,6 +27,12 @@ export async function createInvite(
 ): Promise<CreateInviteState> {
   const admin = await requireAdmin();
 
+  // Default to EXEC; an inviter may only grant a role they're allowed to.
+  const role = (String(formData.get("role") ?? "").trim() || "EXEC") as UserRole;
+  if (!canInvite(admin.role, role)) {
+    return { error: "You're not allowed to invite that role." };
+  }
+
   const emailRaw = String(formData.get("email") ?? "").trim().toLowerCase();
   const email = emailRaw.length > 0 ? emailRaw : null;
 
@@ -42,7 +50,7 @@ export async function createInvite(
     data: {
       tokenHash: hashInviteToken(token),
       email,
-      role: "ADMIN",
+      role,
       expiresAt,
       createdById: admin.id,
     },

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { verifyAccessToken } from "@/app/lib/auth/jwt";
 import { getAccessTokenCookieName } from "@/app/lib/auth/session";
 import { db } from "@/app/lib/db/client";
-import { UserRole } from "@prisma/client";
+import { isTeamRole } from "@/app/lib/auth/roles";
 
 /**
  * Session helpers for Server Components and Server Actions, which read the
@@ -32,19 +32,14 @@ export async function getSessionUser() {
   }
 }
 
-/** True for ADMIN and OWNER (OWNER is the higher privilege). */
-function isAdminRole(role: UserRole) {
-  return role === UserRole.ADMIN || role === UserRole.OWNER;
-}
-
 /**
- * Gate a Server Component / Server Action on admin access. Redirects
- * unauthenticated or non-admin visitors to the login page. Returns the user
- * so callers can use its id/role.
+ * Gate a Server Component / Server Action on team access (EXEC / PRESIDENT /
+ * OWNER all work in the admin area). Redirects unauthenticated or non-team
+ * visitors to the login page. Returns the user so callers can use its id/role.
  */
 export async function requireAdmin() {
   const user = await getSessionUser();
-  if (!user || !isAdminRole(user.role)) {
+  if (!user || !isTeamRole(user.role)) {
     redirect("/admin/login");
   }
   return user;

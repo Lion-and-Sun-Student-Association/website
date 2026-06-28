@@ -1,11 +1,18 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { UserRole } from "@prisma/client";
 import { createInvite, type CreateInviteState } from "./actions";
 
 const initial: CreateInviteState = {};
 
-export default function GenerateInvite() {
+const ROLE_LABEL: Record<UserRole, string> = {
+  EXEC: "Exec",
+  PRESIDENT: "President",
+  OWNER: "Owner",
+};
+
+export default function GenerateInvite({ roles }: { roles: UserRole[] }) {
   const [state, formAction, pending] = useActionState(createInvite, initial);
   const [copied, setCopied] = useState(false);
 
@@ -28,6 +35,24 @@ export default function GenerateInvite() {
             className="rounded-lg border border-white/15 bg-transparent px-3 py-2 outline-none focus:border-accent"
           />
         </label>
+        {roles.length > 1 ? (
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="text-muted">Role</span>
+            <select
+              name="role"
+              defaultValue={roles[0]}
+              className="rounded-lg border border-white/15 bg-transparent px-3 py-2 outline-none focus:border-accent"
+            >
+              {roles.map((r) => (
+                <option key={r} value={r} className="bg-background">
+                  {ROLE_LABEL[r]}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <input type="hidden" name="role" value={roles[0]} />
+        )}
         <button
           type="submit"
           disabled={pending}

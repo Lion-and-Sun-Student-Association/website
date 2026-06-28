@@ -5,6 +5,7 @@ import { db } from "@/app/lib/db/client";
 import { verifyPassword } from "@/app/lib/auth/password";
 import { issueAuthTokens } from "@/app/lib/auth/tokens";
 import { writeAuthCookies } from "@/app/lib/auth/session";
+import { isTeamRole } from "@/app/lib/auth/roles";
 
 export type LoginState = { error?: string };
 
@@ -36,7 +37,7 @@ export async function login(
     return { error: "Invalid email or password." };
   }
 
-  if (user.role !== "ADMIN" && user.role !== "OWNER") {
+  if (!isTeamRole(user.role)) {
     return { error: "This account is not authorized for the admin area." };
   }
 
