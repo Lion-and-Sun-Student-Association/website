@@ -69,6 +69,8 @@ export default function NameBackground({
   useEffect(() => {
     if (!active) return;
     if (names.length === 0) return;
+    // Skip on mobile (< 768px) — too small to read and hurts performance.
+    if (window.matchMedia("(max-width: 767px)").matches) return;
     // Respect users who prefer reduced motion — don't animate at all.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
