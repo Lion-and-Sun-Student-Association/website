@@ -4,7 +4,7 @@ import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { UserRole } from "@prisma/client";
 import { db } from "@/app/lib/db/client";
-import { requireAdmin } from "@/app/lib/auth/server";
+import { requireAdmin, requireReviewer } from "@/app/lib/auth/server";
 import { canInvite } from "@/app/lib/auth/roles";
 import { hashInviteToken } from "@/app/lib/auth/invite";
 
@@ -61,7 +61,7 @@ export async function createInvite(
 }
 
 export async function revokeInvite(id: string) {
-  await requireAdmin();
+  await requireReviewer();
   await db.invite.delete({ where: { id } });
   revalidatePath("/admin/invites");
 }

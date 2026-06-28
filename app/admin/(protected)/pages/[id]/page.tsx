@@ -21,7 +21,6 @@ export default async function EditPageRoute({
     id: page.id,
     title: page.title,
     slug: page.slug,
-    published: page.published,
     sections: page.sections.map((s) => ({
       topAlign: (s.topAlign as Align) ?? "start",
       bottomAlign: (s.bottomAlign as Align) ?? "start",

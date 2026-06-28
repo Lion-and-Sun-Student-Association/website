@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { verifyAccessToken } from "@/app/lib/auth/jwt";
 import { getAccessTokenCookieName } from "@/app/lib/auth/session";
 import { db } from "@/app/lib/db/client";
-import { isTeamRole } from "@/app/lib/auth/roles";
+import { isTeamRole, canReview } from "@/app/lib/auth/roles";
 
 /**
  * Session helpers for Server Components and Server Actions, which read the
@@ -41,6 +41,19 @@ export async function requireAdmin() {
   const user = await getSessionUser();
   if (!user || !isTeamRole(user.role)) {
     redirect("/admin/login");
+  }
+  return user;
+}
+
+/**
+ * Gate a reviewer-only area (members, invites). Team members who aren't
+ * reviewers (i.e. execs) are bounced to a page they can use, rather than seeing
+ * the roster / invite list.
+ */
+export async function requireReviewer() {
+  const user = await requireAdmin();
+  if (!canReview(user.role)) {
+    redirect("/admin/pages");
   }
   return user;
 }

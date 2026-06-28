@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { ContentStatus } from "@prisma/client";
 import { db } from "@/app/lib/db/client";
 
 export const PUBLICATIONS_PER_PAGE = 10;
@@ -12,6 +13,8 @@ export type LoadedPublication = {
   authors: string[];
   content: string;
   date: Date | null;
+  status: ContentStatus;
+  reviewNote: string | null;
 };
 
 /** A list-card view of a publication (no full markdown content). */
@@ -33,9 +36,11 @@ export async function getPublicationsPage(page: number): Promise<{
 }> {
   const current = Math.max(1, Math.floor(page) || 1);
   try {
+    const where = { status: "PUBLISHED" as const };
     const [total, publications] = await Promise.all([
-      db.publication.count(),
+      db.publication.count({ where }),
       db.publication.findMany({
+        where,
         orderBy: [{ date: "desc" }, { title: "asc" }],
         skip: (current - 1) * PUBLICATIONS_PER_PAGE,
         take: PUBLICATIONS_PER_PAGE,
@@ -68,6 +73,8 @@ export const getPublicationById = cache(
           authors: true,
           content: true,
           date: true,
+          status: true,
+          reviewNote: true,
         },
       });
     } catch {

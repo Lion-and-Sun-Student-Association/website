@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { db } from "@/app/lib/db/client";
 import { requireAdmin } from "@/app/lib/auth/server";
+import { canReview } from "@/app/lib/auth/roles";
 
 export type PublicationFormState = { error?: string };
 
@@ -25,12 +26,18 @@ function parseAuthors(raw: string): string[] {
   }
 }
 
+function revalidatePublication(id?: string) {
+  revalidatePath("/admin/publications");
+  revalidatePath("/publications");
+  if (id) revalidatePath(`/publications/${id}`);
+}
+
 /** Create (no id) or update (id present) a publication from the editor form. */
 export async function savePublication(
   _prev: PublicationFormState,
   formData: FormData
 ): Promise<PublicationFormState> {
-  const admin = await requireAdmin();
+  const me = await requireAdmin();
 
   const id = str(formData.get("id"));
   const title = str(formData.get("title"));
@@ -58,24 +65,67 @@ export async function savePublication(
 
   try {
     if (id) {
-      // Leave posterId untouched so the original poster is preserved.
+      const existing = await db.publication.findUnique({
+        where: { id },
+        select: { posterId: true },
+      });
+      if (!existing) return { error: "Publication not found." };
+      if (existing.posterId !== me.id && !canReview(me.role)) {
+        return { error: "You can only edit your own submissions." };
+      }
+      // Leave posterId untouched so the original submitter is preserved.
       await db.publication.update({ where: { id }, data });
     } else {
-      await db.publication.create({ data: { ...data, posterId: admin.id } });
+      await db.publication.create({ data: { ...data, posterId: me.id, status: "DRAFT" } });
     }
   } catch {
     return { error: "Could not save the publication. Please try again." };
   }
 
-  revalidatePath("/admin/publications");
-  revalidatePath("/publications");
-  if (id) revalidatePath(`/publications/${id}`);
+  revalidatePublication(id ?? undefined);
   redirect("/admin/publications");
 }
 
+/** Author (or reviewer) submits a draft / revised publication for review. */
+export async function submitPublication(id: string) {
+  const me = await requireAdmin();
+  const p = await db.publication.findUnique({ where: { id }, select: { posterId: true } });
+  if (!p) return;
+  if (p.posterId !== me.id && !canReview(me.role)) return;
+  await db.publication.update({
+    where: { id },
+    data: { status: "PENDING_REVIEW", submittedAt: new Date(), reviewNote: null },
+  });
+  revalidatePublication(id);
+}
+
+/** Reviewer approves & publishes (also the direct-publish path). */
+export async function publishPublication(id: string) {
+  const me = await requireAdmin();
+  if (!canReview(me.role)) return;
+  await db.publication.update({
+    where: { id },
+    data: { status: "PUBLISHED", approvedById: me.id, approvedAt: new Date(), reviewNote: null },
+  });
+  revalidatePublication(id);
+}
+
+/** Reviewer sends it back to the author with a note. */
+export async function requestPublicationChanges(id: string, note: string) {
+  const me = await requireAdmin();
+  if (!canReview(me.role)) return;
+  await db.publication.update({
+    where: { id },
+    data: { status: "CHANGES_REQUESTED", reviewNote: note?.trim() || null },
+  });
+  revalidatePublication(id);
+}
+
 export async function deletePublication(id: string) {
-  await requireAdmin();
+  const me = await requireAdmin();
+  const p = await db.publication.findUnique({ where: { id }, select: { posterId: true } });
+  if (!p) return;
+  if (p.posterId !== me.id && !canReview(me.role)) return;
   await db.publication.delete({ where: { id } });
-  revalidatePath("/admin/publications");
-  revalidatePath("/publications");
+  revalidatePublication();
 }

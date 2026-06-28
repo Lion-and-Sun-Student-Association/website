@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { ContentStatus } from "@prisma/client";
 import { db } from "@/app/lib/db/client";
 
 export const EVENTS_PER_PAGE = 10;
@@ -20,7 +21,12 @@ export type LoadedEvent = {
   locationLng: number | null;
   registrationUrl: string | null;
   collaborators: EventCollaborator[];
+  status: ContentStatus;
+  reviewNote: string | null;
 };
+
+/** Public routes only ever show published events. */
+const PUBLISHED = { status: "PUBLISHED" as const };
 
 const collaboratorsSelect = {
   select: { id: true, name: true, link: true },
@@ -41,8 +47,9 @@ export async function getEventsPage(page: number): Promise<{
   const current = Math.max(1, Math.floor(page) || 1);
   try {
     const [total, events] = await Promise.all([
-      db.event.count(),
+      db.event.count({ where: PUBLISHED }),
       db.event.findMany({
+        where: PUBLISHED,
         orderBy: { dateTime: "desc" },
         skip: (current - 1) * EVENTS_PER_PAGE,
         take: EVENTS_PER_PAGE,
@@ -78,13 +85,13 @@ export async function getCarouselEvents(limit = 24): Promise<LoadedEvent[]> {
     const half = Math.ceil(limit / 2);
     const [past, upcoming] = await Promise.all([
       db.event.findMany({
-        where: { dateTime: { gt: now } },
+        where: { ...PUBLISHED, dateTime: { gt: now } },
         orderBy: { dateTime: "desc" },
         take: half,
         include: { collaborators: collaboratorsSelect },
       }),
       db.event.findMany({
-        where: { dateTime: { gte: now } },
+        where: { ...PUBLISHED, dateTime: { gte: now } },
         orderBy: { dateTime: "asc" },
         take: half,
         include: { collaborators: collaboratorsSelect },

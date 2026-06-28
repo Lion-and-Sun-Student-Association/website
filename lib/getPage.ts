@@ -19,7 +19,7 @@ export type LoadedPage = {
  */
 export const getPage = cache(async (slug: string): Promise<LoadedPage | null> => {
   const page = await db.page.findFirst({
-    where: { slug, published: true },
+    where: { slug, status: "PUBLISHED" },
     include: { sections: { orderBy: { order: "asc" } } },
   });
   if (!page) return null;

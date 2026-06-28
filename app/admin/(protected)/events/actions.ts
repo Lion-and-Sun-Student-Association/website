@@ -5,8 +5,16 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/app/lib/db/client";
 import type { Prisma } from "@prisma/client";
 import { requireAdmin } from "@/app/lib/auth/server";
+import { canReview } from "@/app/lib/auth/roles";
 
 export type EventFormState = { error?: string };
+
+function revalidateEvent(id?: string) {
+  revalidatePath("/admin/events");
+  revalidatePath("/events");
+  revalidatePath("/");
+  if (id) revalidatePath(`/events/${id}`);
+}
 
 type CollaboratorInput = { name: string; link?: string | null };
 
@@ -89,6 +97,17 @@ export async function saveEvent(
     if (endDateTime < dateTime) return { error: "End time can't be before the start time." };
   }
 
+  if (id) {
+    const existing = await db.event.findUnique({
+      where: { id },
+      select: { creatorId: true },
+    });
+    if (!existing) return { error: "Event not found." };
+    if (existing.creatorId !== admin.id && !canReview(admin.role)) {
+      return { error: "You can only edit your own submissions." };
+    }
+  }
+
   const collaborators = parseCollaborators(String(formData.get("collaborators") ?? "[]"));
 
   const data = {
@@ -130,17 +149,50 @@ export async function saveEvent(
     return { error: "Could not save the event. Please try again." };
   }
 
-  revalidatePath("/admin/events");
-  revalidatePath("/events");
-  revalidatePath("/");
-  if (id) revalidatePath(`/events/${id}`);
+  revalidateEvent(id ?? undefined);
   redirect("/admin/events");
 }
 
+/** Author (or reviewer) submits a draft / revised event for review. */
+export async function submitEvent(id: string) {
+  const me = await requireAdmin();
+  const e = await db.event.findUnique({ where: { id }, select: { creatorId: true } });
+  if (!e) return;
+  if (e.creatorId !== me.id && !canReview(me.role)) return;
+  await db.event.update({
+    where: { id },
+    data: { status: "PENDING_REVIEW", submittedAt: new Date(), reviewNote: null },
+  });
+  revalidateEvent(id);
+}
+
+/** Reviewer approves & publishes (also the direct-publish path). */
+export async function publishEvent(id: string) {
+  const me = await requireAdmin();
+  if (!canReview(me.role)) return;
+  await db.event.update({
+    where: { id },
+    data: { status: "PUBLISHED", approvedById: me.id, approvedAt: new Date(), reviewNote: null },
+  });
+  revalidateEvent(id);
+}
+
+/** Reviewer sends it back to the author with a note. */
+export async function requestEventChanges(id: string, note: string) {
+  const me = await requireAdmin();
+  if (!canReview(me.role)) return;
+  await db.event.update({
+    where: { id },
+    data: { status: "CHANGES_REQUESTED", reviewNote: note?.trim() || null },
+  });
+  revalidateEvent(id);
+}
+
 export async function deleteEvent(id: string) {
-  await requireAdmin();
+  const me = await requireAdmin();
+  const e = await db.event.findUnique({ where: { id }, select: { creatorId: true } });
+  if (!e) return;
+  if (e.creatorId !== me.id && !canReview(me.role)) return;
   await db.event.delete({ where: { id } });
-  revalidatePath("/admin/events");
-  revalidatePath("/events");
-  revalidatePath("/");
+  revalidateEvent();
 }

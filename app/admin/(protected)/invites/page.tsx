@@ -1,5 +1,5 @@
 import { db } from "@/app/lib/db/client";
-import { requireAdmin } from "@/app/lib/auth/server";
+import { requireReviewer } from "@/app/lib/auth/server";
 import { invitableRoles } from "@/app/lib/auth/roles";
 import GenerateInvite from "./GenerateInvite";
 import RevokeInviteButton from "./RevokeInviteButton";
@@ -14,7 +14,7 @@ function statusOf(invite: { acceptedAt: Date | null; expiresAt: Date }) {
 }
 
 export default async function InvitesPage() {
-  const me = await requireAdmin();
+  const me = await requireReviewer();
   const roles = invitableRoles(me.role);
 
   const invites = await db.invite.findMany({

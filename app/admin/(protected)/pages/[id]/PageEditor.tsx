@@ -14,7 +14,6 @@ export type EditorInitial = {
   id: string;
   title: string;
   slug: string;
-  published: boolean;
   sections: EditorSlots[];
 };
 
@@ -58,7 +57,6 @@ function newSection(): EditorSection {
 export default function PageEditor({ initial }: { initial: EditorInitial }) {
   const [title, setTitle] = useState(initial.title);
   const [slug, setSlug] = useState(initial.slug);
-  const [published, setPublished] = useState(initial.published);
   const [sections, setSections] = useState<EditorSection[]>(
     initial.sections.map((s) => ({ ...s, key: crypto.randomUUID() }))
   );
@@ -92,7 +90,6 @@ export default function PageEditor({ initial }: { initial: EditorInitial }) {
         id: initial.id,
         title,
         slug,
-        published,
         sections: sections.map(({ key: _key, ...rest }) => rest),
       });
       setStatus(result);
@@ -120,15 +117,11 @@ export default function PageEditor({ initial }: { initial: EditorInitial }) {
               className="rounded-lg border border-white/15 bg-transparent px-3 py-2 outline-none focus:border-accent"
             />
           </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={published}
-              onChange={(e) => setPublished(e.target.checked)}
-            />
-            <span>Published</span>
-          </label>
         </div>
+        <p className="text-xs text-muted">
+          Saving keeps this a draft. Use the review controls on the Pages list to
+          submit it or publish it.
+        </p>
       </section>
 
       {/* Sections */}

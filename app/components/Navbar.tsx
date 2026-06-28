@@ -19,10 +19,12 @@ const adminLinks = [
   { path: "/admin/events", label: "Events" },
   { path: "/admin/statements", label: "Statements" },
   { path: "/admin/publications", label: "Publications" },
-  { path: "/admin/invites", label: "Invites" },
+  { path: "/admin/members", label: "Team", reviewerOnly: true },
+  { path: "/admin/invites", label: "Invites", reviewerOnly: true },
 ];
 
-type AdminSession = { email: string } | null;
+type Role = "EXEC" | "PRESIDENT" | "OWNER";
+type AdminSession = { email: string; role: Role } | null;
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -33,6 +35,12 @@ export default function Navbar() {
 
   const visibleLinks = navLinks;
 
+  // Reviewer-only items (Team, Invites) are hidden from execs.
+  const reviewer = admin?.role === "PRESIDENT" || admin?.role === "OWNER";
+  const visibleAdminLinks = adminLinks.filter(
+    (l) => !l.reviewerOnly || reviewer
+  );
+
   // Check admin status client-side so the public layout stays statically
   // rendered (the cookie is read by the /api/admin-session route instead).
   useEffect(() => {
@@ -40,7 +48,7 @@ export default function Navbar() {
     fetch("/api/admin-session")
       .then((r) => (r.ok ? r.json() : { admin: false }))
       .then((data) => {
-        if (active) setAdmin(data.admin ? { email: data.email } : null);
+        if (active) setAdmin(data.admin ? { email: data.email, role: data.role } : null);
       })
       .catch(() => {});
     return () => {
@@ -134,7 +142,7 @@ export default function Navbar() {
                       {admin.email}
                     </span>
                   )}
-                  {adminLinks.map((link) => (
+                  {visibleAdminLinks.map((link) => (
                     <Link
                       key={link.path}
                       href={link.path}
@@ -206,7 +214,7 @@ export default function Navbar() {
               <span className="text-xs uppercase tracking-wide text-muted/70">
                 Admin
               </span>
-              {adminLinks.map((link) => (
+              {visibleAdminLinks.map((link) => (
                 <Link
                   key={link.path}
                   href={link.path}

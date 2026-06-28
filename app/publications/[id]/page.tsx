@@ -30,7 +30,7 @@ export default async function PublicationDetailsPage({
 }) {
   const { id } = await params;
   const publication = await getPublicationById(id);
-  if (!publication) notFound();
+  if (!publication || publication.status !== "PUBLISHED") notFound();
 
   const byline = formatAuthors(publication.authors);
 

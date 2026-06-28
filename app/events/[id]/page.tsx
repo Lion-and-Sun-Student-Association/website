@@ -29,7 +29,7 @@ export default async function EventDetailPage({
 }) {
   const { id } = await params;
   const event = await getEventById(id);
-  if (!event) notFound();
+  if (!event || event.status !== "PUBLISHED") notFound();
 
   const past = isPastEvent(event.dateTime, event.endDateTime);
 

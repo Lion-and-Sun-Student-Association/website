@@ -56,10 +56,12 @@ model User {
   eventsCreated           Event[]           @relation("EventCreator")
   eventsUpdated           Event[]           @relation("EventUpdater")
   publicationsPosted      Publication[]     @relation("PublicationPoster")
+  pagesSubmitted          Page[]            @relation("PageSubmitter")
   // … and content this user approved/published as a reviewer.
   statementsApproved      Statement[]       @relation("StatementApprover")
   eventsApproved          Event[]           @relation("EventApprover")
   publicationsApproved    Publication[]     @relation("PublicationApprover")
+  pagesApproved           Page[]            @relation("PageApprover")
 }
 
 model RefreshToken {
@@ -169,10 +171,20 @@ model Page {
   id        String    @id @default(cuid())
   slug      String    @unique          // public URL: /[slug]
   title     String
-  published Boolean   @default(false)   // drafts are hidden from the public route
   sections  Section[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  // Review workflow — only PUBLISHED pages render on the public route.
+  status        ContentStatus @default(DRAFT)
+  submittedById String?
+  submittedBy   User?     @relation("PageSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  submittedAt   DateTime?
+  approvedById  String?
+  approvedBy    User?     @relation("PageApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt    DateTime?
+  reviewNote    String?
+
+  @@index([status])
 }
 
 /// One <Section> within a page. Each slot stores a Block[] as JSON.

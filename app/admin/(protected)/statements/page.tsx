@@ -25,6 +25,7 @@ export default async function AdminStatementsPage() {
       title: true,
       date: true,
       status: true,
+      reviewNote: true,
       submittedBy: { select: { firstName: true, lastName: true } },
       approvedBy: { select: { firstName: true, lastName: true } },
     },
@@ -70,6 +71,11 @@ export default async function AdminStatementsPage() {
                       {approver && <> · Approved by {approver}</>}
                       {s.date && <> · {formatDate(s.date)}</>}
                     </span>
+                    {s.status === "CHANGES_REQUESTED" && s.reviewNote && (
+                      <span className="text-xs text-iran-red">
+                        Changes requested: {s.reviewNote}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
                     <StatementActions id={s.id} status={s.status} canReview={reviewer} />
