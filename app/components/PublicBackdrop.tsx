@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import NameBackground from "@/app/components/NameBackground";
-import GradientBackdrop from "@/app/components/GradientBackdrop";
 import { defaultLocale } from "@/i18n/config";
 import type { NameEntry } from "@/lib/getNames";
 
@@ -22,7 +21,6 @@ export default function PublicBackdrop({ names }: { names: NameEntry[] }) {
 
   return (
     <>
-      <GradientBackdrop />
       <NameBackground names={names} locale={defaultLocale} gateScroll={gateScroll} />
     </>
   );

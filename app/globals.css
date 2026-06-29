@@ -94,7 +94,7 @@ a {
   white-space: nowrap;
   color: var(--foreground);
   /* Light mode: black-on-light has high contrast, so keep names faint. */
-  --name-peak: 0.28;
+  --name-peak: 0.15;
   opacity: 0;
   font-family: 'Times New Roman', Times, serif;
   will-change: opacity, transform;
@@ -105,23 +105,12 @@ a {
 
 /* Dark mode: white-on-dark is softer, so names can carry a touch more presence. */
 [data-theme="dark"] .name-token {
-  --name-peak: 0.45;
+  --name-peak: 0.25;
 }
 
 /* ── Animated gradient backdrop (texture for the glass to blur) ── */
 
 .gradient-backdrop {
-  /* The lion-and-sun tricolour, evoked as soft horizontal stripes:
-     green (top) · light centre with a golden sun · red (bottom). */
-  background-image:
-    /* the three flag bands */
-    linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--iran-green-bg) 55%, transparent) 0%,
-      transparent 45%,
-      transparent 55%,
-      color-mix(in srgb, var(--iran-red-bg) 55%, transparent) 100%
-    );
   /* Slightly taller than the viewport so the bands can sway vertically. */
   background-size: 100% 116%, 100% 116%;
   background-repeat: no-repeat;
