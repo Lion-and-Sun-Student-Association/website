@@ -85,7 +85,7 @@ export async function getCarouselEvents(limit = 24): Promise<LoadedEvent[]> {
     const half = Math.ceil(limit / 2);
     const [past, upcoming] = await Promise.all([
       db.event.findMany({
-        where: { ...PUBLISHED, dateTime: { gt: now } },
+        where: { ...PUBLISHED, dateTime: { lt: now } },
         orderBy: { dateTime: "desc" },
         take: half,
         include: { collaborators: collaboratorsSelect },

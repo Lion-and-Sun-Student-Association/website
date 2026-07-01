@@ -66,7 +66,7 @@ export default function EventsCarousel({ events }: { events: CarouselEvent[] }) 
   return (
     <section className="mx-auto w-full max-w-7xl px-6 py-10">
       <div className="mb-4 flex items-end justify-between gap-4">
-        <h2 className="font-caslon text-2xl font-bold">Upcoming Events</h2>
+        <h2 className="font-caslon text-2xl font-bold">Events</h2>
         <div className="flex items-center gap-2">
           <Link
             href="/events"
